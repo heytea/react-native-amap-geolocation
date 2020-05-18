@@ -20,6 +20,8 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
     private Gson mGson = new Gson();
 
+    private String lastKey = "";
+
     public RNAMapGeolocationModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
@@ -39,9 +41,10 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     @ReactMethod
     public void init(String key, Promise promise) {
-        if (mAMapLocationClient != null) {
+        if (!lastKey.equals(key) && mAMapLocationClient != null) {
             mAMapLocationClient.onDestroy();
         }
+        this.lastKey = key;
         AMapLocationClient.setApiKey(key);
         mAMapLocationClient = new AMapLocationClient(reactContext);
         mAMapLocationClient.setLocationListener(this);
@@ -49,7 +52,16 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     }
 
     @ReactMethod
-    public void start() {
+    public void getDeviceId(Promise promise) {
+        if (mAMapLocationClient == null) {
+            promise.reject("-1", "尚未调用init()进行初始化");
+            return;
+        }
+        promise.resolve(mAMapLocationClient.getDeviceId(reactContext));
+    }
+
+    @ReactMethod
+    public void startLocation() {
         if (mAMapLocationClient == null) {
             return;
         }
@@ -57,7 +69,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     }
 
     @ReactMethod
-    public void stop() {
+    public void stopLocation() {
         if (mAMapLocationClient == null) {
             return;
         }
@@ -66,100 +78,153 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     @ReactMethod
     public void isStarted(Promise promise) {
+        if (mAMapLocationClient == null) {
+            promise.reject("-1", "尚未调用init()进行初始化");
+            return;
+        }
         promise.resolve(mAMapLocationClient.isStarted());
     }
 
     @ReactMethod
     public void getLastKnownLocation(Promise promise) {
+        if (mAMapLocationClient == null) {
+            promise.reject("-1", "尚未调用init()进行初始化");
+            return;
+        }
         promise.resolve(mGson.toJson(mAMapLocationClient.getLastKnownLocation()));
     }
 
     @ReactMethod
     public void setOnceLocation(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setOnceLocation(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setWifiScan(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setWifiScan(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setInterval(int interval) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setInterval(interval);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setSensorEnable(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setSensorEnable(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setOpenAlwaysScanWifi(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         AMapLocationClientOption.setOpenAlwaysScanWifi(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setNeedAddress(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setNeedAddress(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setOnceLocationLatest(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setOnceLocationLatest(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setMockEnable(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setMockEnable(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setLocationCacheEnable(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setLocationCacheEnable(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setGpsFirst(boolean value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setGpsFirst(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setHttpTimeout(int value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setHttpTimeOut(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setGpsFirstTimeout(int value) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setGpsFirstTimeout(value);
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setLocationMode(String mode) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.valueOf(mode));
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setLocationPurpose(String purpose) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setLocationPurpose(AMapLocationClientOption.AMapLocationPurpose.valueOf(purpose));
         mAMapLocationClient.setLocationOption(mOption);
     }
 
     @ReactMethod
     public void setGeoLanguage(String language) {
+        if (mAMapLocationClient == null) {
+            return;
+        }
         mOption.setGeoLanguage(AMapLocationClientOption.GeoLanguage.valueOf(language));
         mAMapLocationClient.setLocationOption(mOption);
     }
