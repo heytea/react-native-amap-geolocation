@@ -1,5 +1,5 @@
 
-# react-native-react-native-heytea-geolocation
+# @heytea/native-amap-geolocation
 
 ## Getting started
 

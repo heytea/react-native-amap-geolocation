@@ -32,7 +32,9 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-
+        if(aMapLocation != null) {
+            getDeviceEventEmitter().emit("AMapGeolocation", mGson.toJson(aMapLocation));
+        }
     }
 
     @ReactMethod
