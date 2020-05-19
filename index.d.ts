@@ -350,6 +350,7 @@ export function stopLocation(): void
  */
 export function isStarted(): Promise<boolean>
 export function getLastKnownLocation(): Promise<AMapLocation>
+export function getCurrentLocation(): Promise<AMapLocation | null>
 export function setOnceLocation(value: boolean): void
 export function setWifiScan(value: boolean): void
 export function setInterval(interval: number): void
