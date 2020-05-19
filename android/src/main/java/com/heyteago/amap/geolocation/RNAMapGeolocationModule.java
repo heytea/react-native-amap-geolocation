@@ -5,10 +5,13 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.AMapLocationQualityReport;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.gson.Gson;
 
@@ -34,7 +37,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if(aMapLocation != null) {
+        if (aMapLocation != null) {
             getDeviceEventEmitter().emit("AMapGeolocation", mGson.toJson(aMapLocation));
         }
     }
@@ -91,7 +94,8 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
             promise.reject("-1", "尚未调用init()进行初始化");
             return;
         }
-        promise.resolve(mGson.toJson(mAMapLocationClient.getLastKnownLocation()));
+        AMapLocation aMapLocation = mAMapLocationClient.getLastKnownLocation();
+        promise.resolve(location2WritableMap(aMapLocation));
     }
 
     @ReactMethod
@@ -234,6 +238,59 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
             mRCTDeviceEventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
         }
         return mRCTDeviceEventEmitter;
+    }
+
+    private WritableMap location2WritableMap(AMapLocation aMapLocation) {
+        WritableMap map = Arguments.createMap();
+        if (aMapLocation == null) {
+            return map;
+        }
+        map.putInt("errorCode", aMapLocation.getErrorCode());
+        map.putString("errorInfo", aMapLocation.getErrorInfo());
+        if (aMapLocation.getErrorCode() == AMapLocation.LOCATION_SUCCESS) {
+            map.putDouble("accuracy", aMapLocation.getAccuracy());
+            map.putString("address", aMapLocation.getAddress());
+            map.putString("adCode", aMapLocation.getAdCode());
+            map.putString("aoiName", aMapLocation.getAoiName());
+            map.putDouble("altitude", aMapLocation.getAltitude());
+            map.putDouble("bearing", aMapLocation.getBearing());
+            map.putString("buildingId", aMapLocation.getBuildingId());
+            map.putString("city", aMapLocation.getCity());
+            map.putString("cityCode", aMapLocation.getCityCode());
+            map.putInt("conScenario", aMapLocation.getConScenario());
+            map.putString("coordType", aMapLocation.getCoordType());
+            map.putString("country", aMapLocation.getCountry());
+            map.putString("description", aMapLocation.getDescription());
+            map.putString("district", aMapLocation.getDistrict());
+            map.putString("floor", aMapLocation.getFloor());
+            map.putInt("gpsAccuracyStatus", aMapLocation.getGpsAccuracyStatus());
+            map.putDouble("latitude", aMapLocation.getLatitude());
+            map.putString("locationDetail", aMapLocation.getLocationDetail());
+
+            WritableMap qualityReportMap = Arguments.createMap();
+            AMapLocationQualityReport aMapLocationQualityReport = aMapLocation.getLocationQualityReport();
+            qualityReportMap.putString("adviseMessage", aMapLocationQualityReport.getAdviseMessage());
+            qualityReportMap.putInt("gpsSatellites", aMapLocationQualityReport.getGPSSatellites());
+            qualityReportMap.putInt("gpsStatus", aMapLocationQualityReport.getGPSStatus());
+            qualityReportMap.putDouble("netUseTime", aMapLocationQualityReport.getNetUseTime());
+            qualityReportMap.putString("networkType", aMapLocationQualityReport.getNetworkType());
+            qualityReportMap.putBoolean("isInstalledHighDangerMockApp", aMapLocationQualityReport.isInstalledHighDangerMockApp());
+            qualityReportMap.putBoolean("isWifiAble", aMapLocationQualityReport.isWifiAble());
+            map.putMap("locationQualityReport", qualityReportMap);
+
+            map.putInt("locationType", aMapLocation.getLocationType());
+            map.putDouble("longitude", aMapLocation.getLongitude());
+            map.putString("poiName", aMapLocation.getPoiName());
+            map.putString("provider", aMapLocation.getProvider());
+            map.putString("province", aMapLocation.getProvince());
+            map.putInt("satellites", aMapLocation.getSatellites());
+            map.putDouble("speed", aMapLocation.getSpeed());
+            map.putString("street", aMapLocation.getStreet());
+            map.putString("streetNum", aMapLocation.getStreetNum());
+            map.putInt("trustedLevel", aMapLocation.getTrustedLevel());
+            map.putDouble("time", aMapLocation.getTime());
+        }
+        return map;
     }
 
 }
