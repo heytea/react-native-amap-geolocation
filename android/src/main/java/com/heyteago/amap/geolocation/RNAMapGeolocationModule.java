@@ -1,4 +1,3 @@
-
 package com.heyteago.amap.geolocation;
 
 import com.amap.api.location.AMapLocation;
@@ -13,7 +12,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.google.gson.Gson;
 
 public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implements AMapLocationListener {
 
@@ -21,7 +19,6 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
-    private Gson mGson = new Gson();
 
     private String lastKey = "";
 
@@ -38,7 +35,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (aMapLocation != null) {
-            getDeviceEventEmitter().emit("AMapGeolocation", mGson.toJson(aMapLocation));
+            getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
         }
     }
 
@@ -46,6 +43,10 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     public void init(String key, Promise promise) {
         if (!lastKey.equals(key) && mAMapLocationClient != null) {
             mAMapLocationClient.onDestroy();
+        }
+        if (mAMapLocationClient != null) {
+            promise.resolve(false);
+            return;
         }
         this.lastKey = key;
         AMapLocationClient.setApiKey(key);
@@ -269,7 +270,11 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
             WritableMap qualityReportMap = Arguments.createMap();
             AMapLocationQualityReport aMapLocationQualityReport = aMapLocation.getLocationQualityReport();
-            qualityReportMap.putString("adviseMessage", aMapLocationQualityReport.getAdviseMessage());
+            String adviseMessage = aMapLocationQualityReport.getAdviseMessage();
+            if (adviseMessage != null) {
+                adviseMessage = adviseMessage.replaceAll("[\\t\\n\\r/]", "");
+            }
+            qualityReportMap.putString("adviseMessage", adviseMessage);
             qualityReportMap.putInt("gpsSatellites", aMapLocationQualityReport.getGPSSatellites());
             qualityReportMap.putInt("gpsStatus", aMapLocationQualityReport.getGPSStatus());
             qualityReportMap.putDouble("netUseTime", aMapLocationQualityReport.getNetUseTime());

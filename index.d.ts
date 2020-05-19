@@ -55,15 +55,85 @@ export interface LocationQualityReport {
     isWifiAble: boolean
 }
 
-export enum COORD {
+export enum COORD_TYPE {
     /**
      * GCJ02坐标系
      */
-    COORD_TYPE_GCJ02 = "",
+    COORD_TYPE_GCJ02 = "GCJ02",
     /**
      * WGS84坐标系
      */
-    COORD_TYPE_WGS84 = ""
+    COORD_TYPE_WGS84 = "WGS84",
+}
+
+export enum GPS_ACCURACY {
+    /**
+     * 卫星信号弱
+     */
+    GPS_ACCURACY_BAD = 0,
+    /**
+     * 卫星信号强
+     */
+    GPS_ACCURACY_GOOD = 1,
+    /**
+     * 卫星状态未知
+     */
+    GPS_ACCURACY_UNKNOWN = -1,
+}
+
+export enum LOCATION_TYPE {
+    /**
+     * 定位结果类型：基站定位结果 属于网络定位
+     */
+    LOCATION_TYPE_CELL = 6,
+    /**
+     * @deprecated
+     * 已过时。 已合并到AMapLocation.LOCATION_TYPE_SAME_REQ
+     */
+    LOCATION_TYPE_FAST = 3,
+    /**
+     * 定位结果类型：缓存定位结果 返回一段时间前设备在相同的环境中缓存下来的网络定位结果，节省无必要的设备定位消耗
+     */
+    LOCATION_TYPE_FIX_CACHE = 4,
+    /**
+     * 定位结果类型：卫星定位结果 通过设备卫星定位模块返回的定位结果
+     */
+    LOCATION_TYPE_GPS = 1,
+    /**
+     * 定位结果类型： 最后位置缓存
+     */
+    LOCATION_TYPE_LAST_LOCATION_CACHE = 9,
+    /**
+     * 定位结果类型： 离线定位结果
+     */
+    LOCATION_TYPE_OFFLINE = 8,
+    /**
+     * 定位结果类型：前次定位结果 网络定位请求低于1秒、或两次定位之间设备位置变化非常小时返回，设备位移通过传感器感知
+     */
+    LOCATION_TYPE_SAME_REQ = 2,
+    /**
+     * 定位结果类型：Wifi定位结果 属于网络定位，定位精度相对基站定位会更好
+     */
+    LOCATION_TYPE_WIFI = 5,
+}
+
+export enum TRUSTED_LEVEL {
+    /**
+     * 定位结果的可信度-非常不可信 周边信息的新鲜度超过10分钟 模拟定位结果
+     */
+    TRUSTED_LEVEL_BAD = 4,
+    /**
+     * 定位结果的可信度-非常可信 周边信息的新鲜度在15s之内 实时GPS定位结果
+     */
+    TRUSTED_LEVEL_HIGH = 1,
+    /**
+     * 定位结果的可信度-可信度较低 周边信息的新鲜度在2-10分钟之间
+     */
+    TRUSTED_LEVEL_LOW = 3,
+    /**
+     * 定位结果的可信度-可信度一般 周边信息的新鲜度在15秒-2分钟之间 缓存、离线定位、最后位置
+     */
+    TRUSTED_LEVEL_NORMAL = 2,
 }
 
 export enum ERROR_CODE {
@@ -182,7 +252,7 @@ export interface AMapLocation {
     /**
      * 获取坐标系类型 高德定位sdk会返回两种坐标系 AMapLocation.COORD_TYPE_GCJ02 -- GCJ02坐标系 AMapLocation.COORD_TYPE_WGS84 -- WGS84坐标系,国外定位时返回的是WGS84坐标系
      */
-    coordType: string
+    coordType: COORD_TYPE
     /**
      * 获取国家名称
      */
@@ -202,7 +272,7 @@ export interface AMapLocation {
     /**
      * 获取卫星信号强度，仅在卫星定位时有效,值为 #GPS_ACCURACY_BAD，#GPS_ACCURACY_GOOD，#GPS_ACCURACY_UNKNOWN
      */
-    gpsAccuracyStatus: number
+    gpsAccuracyStatus: GPS_ACCURACY
     /**
      * 获取纬度
      */
@@ -218,7 +288,7 @@ export interface AMapLocation {
     /**
      * 获取定位结果来源
      */
-    locationType: number
+    locationType: LOCATION_TYPE
     /**
      * 获取经度
      */
@@ -258,7 +328,7 @@ export interface AMapLocation {
     /**
      * 获取定位结果的可信度 只有在定位成功时才有意义 非常可信 AMapLocation.TRUSTED_LEVEL_HIGH 可信度一般AMapLocation.TRUSTED_LEVEL_NORMAL 可信度较低 AMapLocation.TRUSTED_LEVEL_LOW 非常不可信 AMapLocation.TRUSTED_LEVEL_BAD
      */
-    trustedLevel: number
+    trustedLevel: TRUSTED_LEVEL
     time: number
 }
 
