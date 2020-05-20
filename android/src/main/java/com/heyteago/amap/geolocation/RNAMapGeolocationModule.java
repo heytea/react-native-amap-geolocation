@@ -63,7 +63,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
             promise.reject("-1", "尚未调用init()进行初始化");
             return;
         }
-        promise.resolve(mAMapLocationClient.getDeviceId(reactContext));
+        promise.resolve(AMapLocationClient.getDeviceId(reactContext));
     }
 
     @ReactMethod

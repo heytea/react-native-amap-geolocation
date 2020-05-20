@@ -33,6 +33,6 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    api 'com.amap.api:location:4.6.0'
+    api 'com.amap.api:location:4.9.0'
 }
   
