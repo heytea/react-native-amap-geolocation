@@ -366,3 +366,4 @@ export function setGpsFirstTimeout(value: number): void
 export function setLocationMode(mode: string): void
 export function setLocationPurpose(purpose: string): void
 export function setGeoLanguage(language: string): void
+export function setAccuracy(accuracy:number):void

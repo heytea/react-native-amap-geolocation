@@ -1,9 +1,8 @@
 
-#if __has_include("RCTBridgeModule.h")
-#import "RCTBridgeModule.h"
-#else
+#import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
-#endif
+#import <AMapFoundationKit/AMapFoundationKit.h>
+#import <AMapLocationKit/AMapLocationKit.h>
 
 @interface RNReactNativeHeyteaGeolocation : NSObject <RCTBridgeModule>
 
