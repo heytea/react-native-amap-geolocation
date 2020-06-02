@@ -1,17 +1,15 @@
+require "json"
+package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 Pod::Spec.new do |s|
   s.name         = "RNReactNativeHeyteaGeolocation"
-  s.version      = "1.0.0"
-  s.summary      = "RNReactNativeHeyteaGeolocation"
-  s.description  = <<-DESC
-                  RNReactNativeHeyteaGeolocation
-                   DESC
-  s.homepage     = ""
-  s.license      = "MIT"
-  # s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
-  s.author             = { "author" => "author@domain.cn" }
+  s.version      = package["version"]
+  s.summary      = package["description"]
+  s.homepage     = package["repository"]["url"]
+  s.license      = package["license"]
+  s.author       = package["author"]
   s.platform     = :ios, "9.0"
-  s.source       = { :git => "https://github.com/author/RNReactNativeHeyteaGeolocation.git", :tag => "master" }
+  s.source       = { :git => package["repository"]["url"], :tag => "#{s.version}" }
   s.source_files  = "RNReactNativeHeyteaGeolocation/**/*.{h,m}"
   s.requires_arc = true
 
