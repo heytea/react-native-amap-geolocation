@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.author       = package["author"]
   s.platform     = :ios, "9.0"
   s.source       = { :git => package["repository"]["url"], :tag => "#{s.version}" }
-  s.source_files  = "RNReactNativeHeyteaGeolocation/**/*.{h,m}"
+  s.source_files = "ios/**/*.{h,m}"
   s.requires_arc = true
 
   s.dependency "React"
