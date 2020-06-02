@@ -161,7 +161,7 @@ RCT_EXPORT_METHOD(getCurrentLocation:(RCTPromiseResolveBlock)resolve rejecter:(R
               reject([NSString stringWithFormat:@"%ld",(long)error.code],error.localizedDescription,error);
           }else {
               id json = [self json:location reGeocode:regeocode];
-              [NSUserDefaults.standardUserDefaults setObject:json forKey:RCTAMapGeoLocation.storeKey];
+              [NSUserDefaults.standardUserDefaults setObject:json forKey:RNReactNativeHeyteaGeolocation.storeKey];
               resolve(json);
           }
       }];
@@ -174,7 +174,7 @@ RCT_EXPORT_METHOD(getCurrentLocation:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 //获取最近的一次定位信息
 RCT_EXPORT_METHOD(getLastKnownLocation:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
-    id json = [NSUserDefaults.standardUserDefaults objectForKey:RCTAMapGeoLocation.storeKey];
+    id json = [NSUserDefaults.standardUserDefaults objectForKey:RNReactNativeHeyteaGeolocation.storeKey];
     if (json) {
         resolve(json);
     }else {
