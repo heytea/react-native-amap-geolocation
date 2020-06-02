@@ -1,9 +1,7 @@
 
 #import "RNReactNativeHeyteaGeolocation.h"
 
-@implementation RNReactNativeHeyteaGeolocation
-
-@implementation RCTAMapGeoLocation {
+@implementation RNReactNativeHeyteaGeolocation {
       AMapLocationManager *_manager;
        CLLocationManager *_clManager;
       BOOL  _isStarted;
