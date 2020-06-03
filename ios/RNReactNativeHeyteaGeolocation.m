@@ -7,7 +7,7 @@
       BOOL  _isStarted;
 }
 
-RCT_EXPORT_MODULE("RNAMapGeolocation")
+RCT_EXPORT_MODULE(RNAMapGeolocation)
 
 - (dispatch_queue_t)methodQueue {
     return dispatch_get_main_queue();
