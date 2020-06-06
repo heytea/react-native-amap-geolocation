@@ -19,6 +19,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
+    private Promise currentLocationPromise;
 
     private String lastKey = "";
     private AMapLocation currentAMapLocation;
@@ -38,6 +39,10 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
         if (aMapLocation != null) {
             currentAMapLocation = aMapLocation;
             getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
+            if (currentLocationPromise != null) {
+                currentLocationPromise.resolve(location2WritableMap(currentAMapLocation));
+                currentLocationPromise = null;
+            }
         }
     }
 
@@ -55,6 +60,11 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
         mAMapLocationClient = new AMapLocationClient(reactContext);
         mAMapLocationClient.setLocationListener(this);
         promise.resolve(true);
+    }
+
+    @ReactMethod
+    public void setAccuracy(int accuracy) {
+
     }
 
     @ReactMethod
@@ -94,7 +104,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     // 此方法不属于高德地图API
     @ReactMethod
     public void getCurrentLocation(Promise promise) {
-        promise.resolve(currentAMapLocation == null ? null : location2WritableMap(currentAMapLocation));
+        currentLocationPromise = promise;
     }
 
     @ReactMethod
