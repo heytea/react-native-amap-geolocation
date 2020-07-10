@@ -13,13 +13,16 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implements AMapLocationListener {
 
     private final ReactApplicationContext reactContext;
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
-    private Promise currentLocationPromise;
+    private Set<Promise> currentLocationPromiseSet = new HashSet<>();
 
     private String lastKey = "";
     private AMapLocation currentAMapLocation;
@@ -39,10 +42,10 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
         if (aMapLocation != null) {
             currentAMapLocation = aMapLocation;
             getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
-            if (currentLocationPromise != null) {
-                currentLocationPromise.resolve(location2WritableMap(currentAMapLocation));
-                currentLocationPromise = null;
+            for (Promise promise : currentLocationPromiseSet) {
+                promise.resolve(location2WritableMap(currentAMapLocation));
             }
+            currentLocationPromiseSet.clear();
         }
     }
 
@@ -104,7 +107,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     // 此方法不属于高德地图API
     @ReactMethod
     public void getCurrentLocation(Promise promise) {
-        currentLocationPromise = promise;
+        currentLocationPromiseSet.add(promise);
     }
 
     @ReactMethod
