@@ -22,10 +22,10 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
-    private Set<Promise> currentLocationPromiseSet = new HashSet<>();
+    private volatile Set<Promise> currentLocationPromiseSet = new HashSet<>();
+    private final Object mLock = new Object();
 
     private String lastKey = "";
-    private AMapLocation currentAMapLocation;
 
     public RNAMapGeolocationModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -39,13 +39,14 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if (aMapLocation != null) {
-            currentAMapLocation = aMapLocation;
-            getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
-            for (Promise promise : currentLocationPromiseSet) {
-                promise.resolve(location2WritableMap(currentAMapLocation));
+        synchronized (mLock) {
+            if (aMapLocation != null) {
+                getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
+                for (Promise promise : currentLocationPromiseSet) {
+                    promise.resolve(location2WritableMap(aMapLocation));
+                }
+                currentLocationPromiseSet.clear();
             }
-            currentLocationPromiseSet.clear();
         }
     }
 
@@ -107,7 +108,9 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     // 此方法不属于高德地图API
     @ReactMethod
     public void getCurrentLocation(Promise promise) {
-        currentLocationPromiseSet.add(promise);
+        synchronized (mLock) {
+            currentLocationPromiseSet.add(promise);
+        }
     }
 
     @ReactMethod
