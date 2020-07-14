@@ -13,8 +13,6 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implements AMapLocationListener {
 
@@ -22,8 +20,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
-    private volatile Set<Promise> currentLocationPromiseSet = new HashSet<>();
-    private final Object mLock = new Object();
+    private AMapLocation mLastAMapLocation;
 
     private String lastKey = "";
 
@@ -39,15 +36,8 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        synchronized (mLock) {
-            if (aMapLocation != null) {
-                getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
-                for (Promise promise : currentLocationPromiseSet) {
-                    promise.resolve(location2WritableMap(aMapLocation));
-                }
-                currentLocationPromiseSet.clear();
-            }
-        }
+        mLastAMapLocation = aMapLocation;
+        getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
     }
 
     @ReactMethod
@@ -107,9 +97,14 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
 
     // 此方法不属于高德地图API
     @ReactMethod
-    public void getCurrentLocation(Promise promise) {
-        synchronized (mLock) {
-            currentLocationPromiseSet.add(promise);
+    public void getCurrentLocation(final Promise promise) {
+        try {
+            if (!mAMapLocationClient.isStarted()) {
+                mAMapLocationClient.startLocation();
+            }
+            promise.resolve(location2WritableMap(mLastAMapLocation));
+        } catch (Exception e) {
+            promise.resolve(null);
         }
     }
 
@@ -268,7 +263,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
     private WritableMap location2WritableMap(AMapLocation aMapLocation) {
         WritableMap map = Arguments.createMap();
         if (aMapLocation == null) {
-            return map;
+            return null;
         }
         map.putInt("errorCode", aMapLocation.getErrorCode());
         map.putString("errorInfo", aMapLocation.getErrorInfo());
