@@ -14,15 +14,13 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 
-public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implements AMapLocationListener {
+public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
     private AMapLocation mLastAMapLocation;
-
-    private String lastKey = "";
 
     public RNAMapGeolocationModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -34,25 +32,21 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule implemen
         return "RNAMapGeolocation";
     }
 
-    @Override
-    public void onLocationChanged(AMapLocation aMapLocation) {
-        mLastAMapLocation = aMapLocation;
-        getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
-    }
-
     @ReactMethod
     public void init(String key, Promise promise) {
-        if (!lastKey.equals(key) && mAMapLocationClient != null) {
-            mAMapLocationClient.onDestroy();
-        }
         if (mAMapLocationClient != null) {
-            promise.resolve(false);
-            return;
+            mAMapLocationClient = null;
         }
-        this.lastKey = key;
         AMapLocationClient.setApiKey(key);
-        mAMapLocationClient = new AMapLocationClient(reactContext);
-        mAMapLocationClient.setLocationListener(this);
+        mAMapLocationClient = new AMapLocationClient(reactContext.getApplicationContext());
+        mAMapLocationClient.setLocationListener(new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation aMapLocation) {
+                mLastAMapLocation = aMapLocation;
+                getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
+            }
+        });
+        mAMapLocationClient.setLocationOption(mOption);
         promise.resolve(true);
     }
 
