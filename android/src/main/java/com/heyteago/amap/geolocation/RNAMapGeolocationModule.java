@@ -13,6 +13,9 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
 
@@ -21,11 +24,28 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
     private AMapLocationClientOption mOption = new AMapLocationClientOption();
     private AMapLocation mLastAMapLocation;
+    private Set<Promise> currentLocationPromiseSet = new HashSet<>();
 
     public RNAMapGeolocationModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
     }
+
+    private AMapLocationListener mMapLocationListener = new AMapLocationListener() {
+        @Override
+        public void onLocationChanged(AMapLocation aMapLocation) {
+            mLastAMapLocation = aMapLocation;
+            getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
+            if (currentLocationPromiseSet.size() > 0) {
+                WritableMap result = location2WritableMap(mLastAMapLocation);
+                for (Promise promise : currentLocationPromiseSet) {
+                    promise.resolve(result);
+                }
+                currentLocationPromiseSet.clear();
+                mAMapLocationClient.stopLocation();
+            }
+        }
+    };
 
     @Override
     public String getName() {
@@ -39,13 +59,7 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
         }
         AMapLocationClient.setApiKey(key);
         mAMapLocationClient = new AMapLocationClient(reactContext.getApplicationContext());
-        mAMapLocationClient.setLocationListener(new AMapLocationListener() {
-            @Override
-            public void onLocationChanged(AMapLocation aMapLocation) {
-                mLastAMapLocation = aMapLocation;
-                getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
-            }
-        });
+        mAMapLocationClient.setLocationListener(mMapLocationListener);
         mAMapLocationClient.setLocationOption(mOption);
         promise.resolve(true);
     }
@@ -88,18 +102,13 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
         }
         promise.resolve(mAMapLocationClient.isStarted());
     }
-
-    // 此方法不属于高德地图API
+    
     @ReactMethod
     public void getCurrentLocation(final Promise promise) {
-        try {
-            if (!mAMapLocationClient.isStarted()) {
-                mAMapLocationClient.startLocation();
-            }
-            promise.resolve(location2WritableMap(mLastAMapLocation));
-        } catch (Exception e) {
-            promise.resolve(null);
+        if (!mAMapLocationClient.isStarted()) {
+            mAMapLocationClient.startLocation();
         }
+        currentLocationPromiseSet.add(promise);
     }
 
     @ReactMethod
