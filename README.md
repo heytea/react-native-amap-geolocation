@@ -1,15 +1,14 @@
 
 # @heytea/native-amap-geolocation
 
-## Getting started
+高德地图定位模块。
+
+## Install
 
 `$ npm install @heytea/react-native-amap-geolocation --save`
 
-或者直接在package.json中添加
 
-`"@heytea/react-native-amap-geolocation": "git+https://github.com/heytea/react-native-amap-geolocation.git"`
-
-## Android
+#### Android
 
 在Manifest.xml文件中添加
 
@@ -40,11 +39,55 @@
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 <!--用于读取手机当前的状态-->
 <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
-<!--用于写入缓存数据到扩展存储卡-->
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 <!--用于申请调用A-GPS模块-->
 <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"></uses-permission>
 ```
 
+## Use
+
+#### 1. 初始化
+
+```typescript
+import geoLocation from '@heytea/react-native-amap-geolocation'
+
+geoLocation.init(aMapKey)
+```
+
+#### 2. API
+
+```typescript
+// 获取当前位置（省电，会自动启动定位，获取到位置后，自动关闭定位）
+const location = await geoLocation.getCurrentLocation()
+
+// 获取最后已知位置
+const location = await geoLocation.getLastKnownLocation()
+
+// 获取deviceId
+const id = await geoLocation.getDeviceId()
+
+// 启动定位
+geoLocation.startLocation()
+
+// 关闭定位
+geoLocation.stopLocation()
+
+// 定位是否启动中
+const doing = await geoLocation.isStarted()
+
+// 设置项
+setWifiScan(boolean)
+setInterval(number)
+setSensorEnable(boolean)
+setOpenAlwaysScanWifi(boolean)
+setNeedAddress(boolean)
+setOnceLocationLatest(boolean)
+setMockEnable(boolean)
+setLocationCacheEnable(boolean)
+setGpsFirst(boolean)
+setHttpTimeout(number)
+setGpsFirstTimeout(number)
+setGeoLanguage(string)
+
+```
 
   
