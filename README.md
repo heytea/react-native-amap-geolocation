@@ -1,7 +1,7 @@
 
 # @heytea/native-amap-geolocation
 
-高德地图定位模块。
+react native 高德地图定位模块。
 
 ## Install
 
