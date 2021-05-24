@@ -18,34 +18,37 @@ import java.util.Set;
 
 
 public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
+    private static boolean isStarted = false;
 
     private final ReactApplicationContext reactContext;
+    private final AMapLocationClientOption mOption = new AMapLocationClientOption();
+    private final Set<Promise> currentLocationPromiseSet = new HashSet<>();
     private AMapLocationClient mAMapLocationClient;
     private DeviceEventManagerModule.RCTDeviceEventEmitter mRCTDeviceEventEmitter;
-    private AMapLocationClientOption mOption = new AMapLocationClientOption();
-    private AMapLocation mLastAMapLocation;
-    private Set<Promise> currentLocationPromiseSet = new HashSet<>();
 
     public RNAMapGeolocationModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
     }
 
-    private AMapLocationListener mMapLocationListener = new AMapLocationListener() {
+    private final AMapLocationListener mMapLocationListener = new AMapLocationListener() {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
-            mLastAMapLocation = aMapLocation;
             getDeviceEventEmitter().emit("AMap_onLocationChanged", location2WritableMap(aMapLocation));
-            if (currentLocationPromiseSet.size() > 0) {
-                WritableMap result = location2WritableMap(mLastAMapLocation);
-                for (Promise promise : currentLocationPromiseSet) {
-                    promise.resolve(result);
-                }
-                currentLocationPromiseSet.clear();
-                mAMapLocationClient.stopLocation();
-            }
+            notifyCurrentLocation(aMapLocation);
         }
     };
+
+    private synchronized void notifyCurrentLocation(AMapLocation aMapLocation) {
+        if (currentLocationPromiseSet.size() > 0) {
+            WritableMap result = location2WritableMap(aMapLocation);
+            for (Promise promise : currentLocationPromiseSet) {
+                promise.resolve(result);
+            }
+            currentLocationPromiseSet.clear();
+            realStopLocation();
+        }
+    }
 
     @Override
     public String getName() {
@@ -105,8 +108,8 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
     
     @ReactMethod
     public void getCurrentLocation(final Promise promise) {
-        if (!mAMapLocationClient.isStarted()) {
-            mAMapLocationClient.startLocation();
+        if (!isStarted) {
+            realStartLocation();
         }
         currentLocationPromiseSet.add(promise);
     }
@@ -254,6 +257,20 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
         }
         mOption.setGeoLanguage(AMapLocationClientOption.GeoLanguage.valueOf(language));
         mAMapLocationClient.setLocationOption(mOption);
+    }
+
+    private void realStopLocation() {
+        if (isStarted) {
+            isStarted = false;
+            mAMapLocationClient.stopLocation();
+        }
+    }
+
+    private void realStartLocation() {
+        if (!isStarted) {
+            isStarted = true;
+            mAMapLocationClient.startLocation();
+        }
     }
 
     private DeviceEventManagerModule.RCTDeviceEventEmitter getDeviceEventEmitter() {
