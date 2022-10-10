@@ -146,7 +146,9 @@ RCT_EXPORT_METHOD(setAccuracy:(NSInteger)accuracy) {
 }
 
 
-
+RCT_EXPORT_METHOD(convertCoord: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    
+}
 
 
 //获取当前定位
@@ -170,6 +172,22 @@ RCT_EXPORT_METHOD(getCurrentLocation:(RCTPromiseResolveBlock)resolve rejecter:(R
       reject(@"-10086",@"location unauthorized",nil);
   }
   
+}
+
+
+// 转换坐标系为GPS
+RCT_EXPORT_METHOD(convertCoord
+                  :(double)lati
+                  :(double)longti
+                  :(RCTPromiseResolveBlock)resolve
+                  :(RCTPromiseRejectBlock)reject) {
+    CLLocationCoordinate2D coor = CLLocationCoordinate2DMake(lati,longti);
+    CLLocationCoordinate2D covertCoor = AMapCoordinateConvert(coor, AMapCoordinateTypeGPS);
+    NSDictionary *dic = @{
+        @"lati":@(covertCoor.latitude),
+        @"longti":@(covertCoor.longitude)
+    };
+    resolve(dic);
 }
 
 //获取最近的一次定位信息
