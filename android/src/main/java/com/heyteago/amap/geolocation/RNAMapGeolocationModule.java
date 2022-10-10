@@ -108,6 +108,10 @@ public class RNAMapGeolocationModule extends ReactContextBaseJavaModule {
     
     @ReactMethod
     public void getCurrentLocation(final Promise promise) {
+        if (mAMapLocationClient == null) {
+            promise.resolve(null);
+            return;
+        }
         if (!isStarted) {
             realStartLocation();
         }
