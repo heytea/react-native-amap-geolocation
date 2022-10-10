@@ -156,7 +156,7 @@ RCT_EXPORT_METHOD(getCurrentLocation:(RCTPromiseResolveBlock)resolve rejecter:(R
   CLAuthorizationStatus status =    [CLLocationManager authorizationStatus];
   [_clManager requestWhenInUseAuthorization];
   if (status == kCLAuthorizationStatusAuthorizedAlways || status ==  kCLAuthorizationStatusAuthorizedWhenInUse || status ==  kCLAuthorizationStatusNotDetermined) {
-   [_manager requestLocationWithReGeocode:NO completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
+   [_manager requestLocationWithReGeocode:YES completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
           if (error) {
               reject([NSString stringWithFormat:@"%ld",(long)error.code],error.localizedDescription,error);
           }else {
