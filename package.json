@@ -1,7 +1,6 @@
-
 {
   "name": "@heytea/react-native-amap-geolocation",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "amap geo location rn plugin",
   "main": "index.js",
   "scripts": {
